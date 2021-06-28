@@ -1,6 +1,9 @@
 import argparse
 from os import remove
 from os.path import isfile
+import urllib.parse as urlparse
+from urllib.parse import parse_qs
+
 
 def cleanFile(argumentosScript):
 
@@ -11,13 +14,23 @@ def cleanFile(argumentosScript):
 
 	newFile =  open(argumentosScript.output,'w')
 
-	if '|' not in argumentosScript.strings:
+	if argumentosScript.strings != None and '|' not in argumentosScript.strings:
 		print('Set | in strings args.')
 		exit()
 
-	duplicateUrls = []
+	if argumentosScript.extract != None:
+		extractList = []
 
 	for a in arquivoClean:
+
+		if argumentosScript.extract != None and argumentosScript.extract == True:
+
+			for d in parse_qs(urlparse.urlparse(a).query):
+
+				if d not in extractList:
+					extractList.append(d)
+
+			continue
 
 		if argumentosScript.extensions != None:
 
@@ -47,6 +60,11 @@ def cleanFile(argumentosScript):
 		if keywordNot != True:
 			newFile.write(a)
 
+	if argumentosScript.extract != None:
+
+		for e in extractList:
+			newFile.write('{}\n'.format(e))
+			
 	newFile.close()
 
 def main():
@@ -54,8 +72,9 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--input", help="file input", type=str, required=True)
 	parser.add_argument("--output", help="file output", type=str, required=True)
-	parser.add_argument("--strings", help="syntax = palavra|palavra2", type=str, required=True)
+	parser.add_argument("--strings", help="syntax = palavra|palavra2", type=str)
 	parser.add_argument("--extensions", help="extensions = palavra|palavra2", type=str)
+	parser.add_argument("--extract", help="eextract paramerets", type=bool)
 
 	args = parser.parse_args()
 
@@ -63,5 +82,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
-
