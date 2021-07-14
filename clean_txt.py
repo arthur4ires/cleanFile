@@ -14,6 +14,10 @@ def cleanFile(argumentosScript):
 
 	newFile =  open(argumentosScript.output,'w')
 
+	if argumentosScript.strings != None and '|' not in argumentosScript.strings:
+		print('Set | in strings args.')
+		exit()
+
 	if argumentosScript.extract != None:
 		extractList = []
 
@@ -23,8 +27,8 @@ def cleanFile(argumentosScript):
 
 			for d in parse_qs(urlparse.urlparse(a).query):
 
-				if d not in extractList:
-					extractList.append(d)
+				if d not in extractList and ' ' not in d:
+					extractList.append(d.replace('amp;',''))
 
 			continue
 
@@ -39,6 +43,7 @@ def cleanFile(argumentosScript):
 				stopExtension = False
 
 				for _ in argumentosScript.extensions.split('|'):
+
 					if _ in a.split('.')[-1].replace('\n',''):
 							stopExtension = True
 							break
@@ -48,30 +53,10 @@ def cleanFile(argumentosScript):
 
 		keywordNot = False
 
-		if argumentosScript.stringin != None:
-			if '|' in argumentosScript.stringin:
+		for b in argumentosScript.strings.split('|'):
 
-				for _  in argumentosScript.stringin.split('|'):
-
-					if _ in a:
-						keywordNot = False
-			else:
-
-				if argumentosScript.stringin in a:
-					keywordNot = False
-
-		if argumentosScript.stringout != None:
-
-			if '|' in argumentosScript.stringout:
-
-				for _ in argumentosScript.stringout.split('|'):
-
-					if _ in a:
-						keywordNot = True
-			else:
-
-				if argumentosScript.stringout in a:
-					keywordNot = True
+			if b in a:
+				keywordNot = True
 
 		if keywordNot != True:
 			newFile.write(a)
@@ -88,10 +73,9 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-i","--input", help="file input", type=str, required=True)
 	parser.add_argument("-o","--output", help="file output", type=str, required=True)
-	parser.add_argument("-so","--stringout", help="syntax = domain1|domain2", type=str)
-	parser.add_argument("-si","--stringin", help="syntax = ?|param", type=str)
+	parser.add_argument("--strings", help="syntax = palavra|palavra2", type=str)
 	parser.add_argument("--extensions", help="extensions = palavra|palavra2", type=str)
-	parser.add_argument("--extract", help="extract paramerets", type=bool)
+	parser.add_argument("--extract", help="eextract paramerets", type=bool)
 
 	args = parser.parse_args()
 
