@@ -14,10 +14,6 @@ def cleanFile(argumentosScript):
 
 	newFile =  open(argumentosScript.output,'w')
 
-	if argumentosScript.strings != None and '|' not in argumentosScript.strings:
-		print('Set | in strings args.')
-		exit()
-
 	if argumentosScript.extract != None:
 		extractList = []
 
@@ -52,10 +48,30 @@ def cleanFile(argumentosScript):
 
 		keywordNot = False
 
-		for b in argumentosScript.strings.split('|'):
+		if argumentosScript.stringin != None:
+			if '|' in argumentosScript.stringin:
 
-			if b in a:
-				keywordNot = True
+				for _  in argumentosScript.stringin.split('|'):
+
+					if _ in a:
+						keywordNot = False
+			else:
+
+				if argumentosScript.stringin in a:
+					keywordNot = False
+
+		if argumentosScript.stringout != None:
+
+			if '|' in argumentosScript.stringout:
+
+				for _ in argumentosScript.stringout.split('|'):
+
+					if _ in a:
+						keywordNot = True
+			else:
+
+				if argumentosScript.stringout in a:
+					keywordNot = True
 
 		if keywordNot != True:
 			newFile.write(a)
@@ -70,11 +86,12 @@ def cleanFile(argumentosScript):
 def main():
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--input", help="file input", type=str, required=True)
-	parser.add_argument("--output", help="file output", type=str, required=True)
-	parser.add_argument("--strings", help="syntax = palavra|palavra2", type=str)
+	parser.add_argument("-i","--input", help="file input", type=str, required=True)
+	parser.add_argument("-o","--output", help="file output", type=str, required=True)
+	parser.add_argument("-so","--stringout", help="syntax = domain1|domain2", type=str)
+	parser.add_argument("-si","--stringin", help="syntax = ?|param", type=str)
 	parser.add_argument("--extensions", help="extensions = palavra|palavra2", type=str)
-	parser.add_argument("--extract", help="eextract paramerets", type=bool)
+	parser.add_argument("--extract", help="extract paramerets", type=bool)
 
 	args = parser.parse_args()
 
